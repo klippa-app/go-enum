@@ -1,0 +1,1 @@
+directive @goModel(model: String) repeatable on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
