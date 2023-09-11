@@ -110,35 +110,40 @@ func main() {
 		EnumDefaultValue: enumDefault,
 	}
 
-	ExecuteTemplate(templates, "enum.tmpl", fullPath(dir, fileName, ".go"), data)
+	ExecuteTemplate(templates, "enum.tmpl", fullPath(dir, fileName, *enumName, ".go"), data)
 	if util.DereferenceOrNew(generateBson) {
-		ExecuteTemplate(templates, "bson.tmpl", fullPath(dir, fileName, "marshal_bson.go"), data)
+		ExecuteTemplate(templates, "bson.tmpl", fullPath(dir, fileName, *enumName, "marshal_bson.go"), data)
 	}
 	if util.DereferenceOrNew(generateJson) {
-		ExecuteTemplate(templates, "json.tmpl", fullPath(dir, fileName, "marshal_json.go"), data)
+		ExecuteTemplate(templates, "json.tmpl", fullPath(dir, fileName, *enumName, "marshal_json.go"), data)
 	}
 	if util.DereferenceOrNew(generateXml) {
-		ExecuteTemplate(templates, "xml.tmpl", fullPath(dir, fileName, "marshal_xml.go"), data)
+		ExecuteTemplate(templates, "xml.tmpl", fullPath(dir, fileName, *enumName, "marshal_xml.go"), data)
 	}
 	if util.DereferenceOrNew(generateSql) || util.DereferenceOrNew(generateEnt) {
-		ExecuteTemplate(templates, "sql.tmpl", fullPath(dir, fileName, "marshal_sql.go"), data)
+		ExecuteTemplate(templates, "sql.tmpl", fullPath(dir, fileName, *enumName, "marshal_sql.go"), data)
 	}
 	if util.DereferenceOrNew(generateEnt) {
-		ExecuteTemplate(templates, "ent.tmpl", fullPath(dir, fileName, "marshal_ent.go"), data)
+		ExecuteTemplate(templates, "ent.tmpl", fullPath(dir, fileName, *enumName, "marshal_ent.go"), data)
 	}
 	switch util.DereferenceOrNew(generateGql) {
 	case "go":
-		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, fileName, "marshal_gql.go"), data)
+		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, fileName, *enumName, "marshal_gql.go"), data)
 	case "gql":
-		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, fileName, ".graphql"), data)
+		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, fileName, *enumName, ".graphql"), data)
 	case "full":
-		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, fileName, "marshal_gql.go"), data)
-		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, fileName, ".graphql"), data)
+		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, fileName, *enumName, "marshal_gql.go"), data)
+		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, fileName, *enumName, ".graphql"), data)
 	}
 }
 
-func fullPath(dir string, fileName string, suffix string) string {
-	suf := fmt.Sprint(coerce.CamelCase(fileName), "Enum", coerce.PascalCase(suffix))
+func fullPath(dir string, fileName string, enumName string, suffix string) string {
+	filePathBaseParts := []string{coerce.CamelCase(fileName)}
+	if coerce.CamelCase(fileName) != coerce.CamelCase(enumName) {
+		filePathBaseParts = append(filePathBaseParts, coerce.CamelCase(enumName))
+	}
+
+	suf := fmt.Sprint(strings.Join(filePathBaseParts, "_"), "Enum", coerce.PascalCase(suffix))
 
 	return path.Join(dir, coerce.SnakeCase(suf))
 }
