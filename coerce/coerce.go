@@ -1,6 +1,8 @@
 package coerce
 
 import (
+	"strings"
+
 	"github.com/stoewer/go-strcase"
 )
 
@@ -26,4 +28,12 @@ func KebabCase(str string) string {
 
 func UpperKebabCase(str string) string {
 	return strcase.UpperKebabCase(str)
+}
+
+func Upper(str string) string {
+	return strings.ToUpper(str)
+}
+
+func Lower(str string) string {
+	return strings.ToLower(str)
 }

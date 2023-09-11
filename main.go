@@ -176,6 +176,10 @@ func stringer(s string) string {
 		return coerce.KebabCase(s)
 	case "upper_kebab":
 		return coerce.UpperKebabCase(s)
+	case "upper":
+		return coerce.Upper(s)
+	case "lower":
+		return coerce.Lower(s)
 	}
 
 	panic(fmt.Sprintf("unknown stringerCase: %s", *stringerCase))
@@ -199,6 +203,10 @@ func stringerFn() string {
 		return "coerce.KebabCase"
 	case "upper_kebab":
 		return "coerce.UpperKebabCase"
+	case "upper":
+		return "coerce.Upper"
+	case "lower":
+		return "coerce.Lower"
 	}
 
 	panic(fmt.Sprintf("unknown stringerCase: %s", *stringerCase))
@@ -214,6 +222,7 @@ var TemplateFunctions = template.FuncMap{
 	"camel":          coerce.CamelCase,
 	"pascal":         coerce.PascalCase,
 	"upperSnake":     coerce.UpperSnakeCase,
+	"upper":          strings.ToUpper,
 	"plural":         pluralize.NewClient().Plural,
 	"stringer":       stringer,
 	"stringerFn":     stringerFn,
