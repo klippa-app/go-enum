@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"embed"
 	"flag"
 	"fmt"
@@ -53,7 +54,7 @@ func init() {
 	prefix = flag.String("prefix", *enumName, "the prefix of the enum to strip (defaults to the name of the enum)")
 
 	verbose = flag.Bool("v", false, "enable verbose logging")
-	stringerCase = flag.String("case", "snake", "camel, pascal, snake, upper_snake, kebab, upper_kebab")
+	stringerCase = flag.String("case", "snake", "camel, pascal, snake, upper_snake, kebab, upper_kebab, upper, lower")
 	generateGql = flag.String("gql", "none", "'go': only generate marshaller, 'gql': only generate gql enum, 'full' generate both the marshaller and enum")
 	generateBson = flag.Bool("bson", false, "generate functions for Bson")
 	generateJson = flag.Bool("json", false, "generate functions for Json")
@@ -62,9 +63,59 @@ func init() {
 	generateEnt = flag.Bool("ent", false, "generate functions for ent")
 }
 
+var prints = []string{
+	`Add a go generate line with in your go code as followed:
+	
+	//go:generate go run --mod=mod github.com/klippa-app/go-enum`,
+	`	To this line add any of the defined flags:`,
+	`	-v						enables verbose logging
+							Verbose logging prints additional logging used for debugging`,
+	`	-case=[camel|pascal|snake|upper_snake
+		|kebab|upper_kebab|upper|lower]
+							case changes the casing for the stringer
+							The stringer is used to convert between external systems`,
+
+	`	-gpl=[none|full]				generate gql enum values`,
+	`	-bson						generate functions for Bson`,
+	`	-json						generate functions for Json`,
+	`	-xml						generate functions for Xml`,
+	`	-sql						generate functions for sql`,
+	`	-ent						generate functions for ent`,
+	`Change how your enums behave
+	Go-enums supports flags per value to modify your enums behavior
+	Behind your values add a comment as followed
+	//enum:
+	after the colon add your flags with a comma separator`,
+	`	default						default set the default value of the enum to this value
+							The default value is used when no other enum value is valid`,
+	`	invalid						invalid set a specific value as invalid
+							An invalid enum value can be used in code but can not be marshalled and is not in the valid list of enum values`,
+	`	Example
+	const Unknown Day = 0 //enum:default,invalid`,
+
+	`
+You are ready to generate your code:
+run go generate`,
+}
+
 func Usage() {
-	fmt.Fprintf(os.Stderr, "Usage of klippa/go-enum:\n")
-	fmt.Fprintf(os.Stderr, "TODO\n")
+	fmt.Fprintln(os.Stdout, `Usage of klippa/go-enum:
+
+	go-enum is a code generator for Golang.
+	Golang by default does not support enums
+	Golang defines enums using uints and custom marshallers however if you have a lot of these there can be a lot of boilerplate code
+	go-enum generate custom marshallers for different marshallers next to your existing code
+
+	Make sure to read the README and checkout the examples
+
+	press "enter" to continue to implementation`)
+
+	s := bufio.NewScanner(os.Stdin)
+	for i := 0; s.Scan(); i++ {
+		if i < len(prints) {
+			fmt.Fprintln(os.Stdout, prints[i])
+		}
+	}
 }
 
 func main() {
