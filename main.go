@@ -87,12 +87,20 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	packageName := pkgs[0].Name
 	packagePath := pkgs[0].PkgPath
 
 	typeInfo := pkgs[0].TypesInfo
 
 	enumValues, underlyingType, enumDefault := values.ExtractEnumValues(typeInfo, fmt.Sprint(packagePath, ".", *enumName))
+	if len(enumValues) == 0 {
+		panic("no enum values found")
+	}
+
+	if underlyingType == "" {
+		panic("could not determine underlying type for enum")
+	}
 
 	templates, err := template.New("").
 		Funcs(TemplateFunctions). // Custom functions
