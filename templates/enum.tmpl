@@ -53,7 +53,7 @@ func ({{ $lt }} {{ $t }}) String() string {
 	{{- if $default := $.EnumDefaultValue }}
 		return {{ $default }}.String()
 	{{- else }}
-		panic(fmt.Sprintf("no default for enum %v", {{ $lt }}))
+		panic(fmt.Sprintf("no default for enum %T, invalid value: '%#v'", {{ $lt }}, {{ $lt }}))
 	{{- end }}
 	}
 }

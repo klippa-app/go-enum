@@ -36,7 +36,7 @@ func ToDay(value int) Day {
 	case Unknown, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday:
 		return day_enum
 	default:
-		return Unknown
+		panic(fmt.Sprintf("no default for enum %v", day_enum))
 	}
 }
 
@@ -59,7 +59,7 @@ func (day_enum Day) String() string {
 	case Sunday:
 		return "SUNDAY"
 	default:
-		return Unknown.String()
+		panic(fmt.Sprintf("no default for enum %T, invalid value: '%#v'", day_enum, day_enum))
 	}
 }
 

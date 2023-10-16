@@ -4,7 +4,7 @@ package day
 type Day int
 
 const (
-	Unknown Day = 0 //enum:invalid,default
+	Unknown Day = 0 //enum:invalid
 	Monday  Day = 1 << iota
 	Tuesday
 	Wednesday
