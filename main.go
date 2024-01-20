@@ -75,33 +75,37 @@ func main() {
 		EnumDefaultValue: enumDefault,
 	}
 
-	ExecuteTemplate(templates, "enum.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, ".go"), data)
+	execTemplate := func(name string, extension string) {
+		ExecuteTemplate(templates, name, fullPath(dir, cfg.FileName, cfg.EnumName, extension), data)
+	}
+
+	execTemplate("enum.tmpl", ".go")
 	if cfg.Generate.Bson {
-		ExecuteTemplate(templates, "bson.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_bson.go"), data)
+		execTemplate("bson.tmpl", "marshal_bson.go")
 	}
 	if cfg.Generate.Json {
-		ExecuteTemplate(templates, "json.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_json.go"), data)
+		execTemplate("json.tmpl", "marshal_json.go")
 	}
 	if cfg.Generate.Xml {
-		ExecuteTemplate(templates, "xml.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_xml.go"), data)
+		execTemplate("xml.tmpl", "marshal_xml.go")
 	}
 	if cfg.Generate.Sql || cfg.Generate.Ent {
-		ExecuteTemplate(templates, "sql.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_sql.go"), data)
+		execTemplate("sql.tmpl", "marshal_sql.go")
 	}
 	if cfg.Generate.Text {
-		ExecuteTemplate(templates, "text.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_text.go"), data)
+		execTemplate("text.tmpl", "marshal_text.go")
 	}
 	if cfg.Generate.Ent {
-		ExecuteTemplate(templates, "ent.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_ent.go"), data)
+		execTemplate("ent.tmpl", "marshal_ent.go")
 	}
 	switch cfg.Generate.Gql {
 	case "go":
-		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_gql.go"), data)
+		execTemplate("gql.go.tmpl", "marshal_gql.go")
 	case "gql":
-		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, ".graphql"), data)
+		execTemplate("gql.graphql.tmpl", ".graphql")
 	case "full":
-		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, "marshal_gql.go"), data)
-		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, cfg.FileName, cfg.EnumName, ".graphql"), data)
+		execTemplate("gql.go.tmpl", "marshal_gql.go")
+		execTemplate("gql.graphql.tmpl", ".graphql")
 	}
 }
 

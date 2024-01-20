@@ -2,8 +2,7 @@ package util
 
 func Only[T any, K any](values []K) (filtered []T) {
 	for i := range values {
-		switch t := any(values[i]).(type) {
-		case T:
+		if t, ok := any(values[i]).(T); ok {
 			filtered = append(filtered, t)
 		}
 	}
