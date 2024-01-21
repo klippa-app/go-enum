@@ -40,6 +40,7 @@ var (
 	generateJson *bool
 	generateXml  *bool
 	generateSql  *bool
+	generateText *bool
 	generateEnt  *bool
 )
 
@@ -60,6 +61,7 @@ func init() {
 	generateXml = flag.Bool("xml", false, "generate functions for Xml")
 	generateSql = flag.Bool("sql", false, "generate functions for sql")
 	generateEnt = flag.Bool("ent", false, "generate functions for ent")
+	generateText = flag.Bool("text", false, "generate functions for text")
 }
 
 func Usage() {
@@ -130,6 +132,9 @@ func main() {
 	}
 	if util.DereferenceOrNew(generateSql) || util.DereferenceOrNew(generateEnt) {
 		ExecuteTemplate(templates, "sql.tmpl", fullPath(dir, fileName, *enumName, "marshal_sql.go"), data)
+	}
+	if util.DereferenceOrNew(generateSql) || util.DereferenceOrNew(generateEnt) {
+		ExecuteTemplate(templates, "text.tmpl", fullPath(dir, fileName, *enumName, "marshal_text.go"), data)
 	}
 	if util.DereferenceOrNew(generateEnt) {
 		ExecuteTemplate(templates, "ent.tmpl", fullPath(dir, fileName, *enumName, "marshal_ent.go"), data)

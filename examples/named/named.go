@@ -1,4 +1,4 @@
-//go:generate go run --mod=mod github.com/klippa-app/go-enum -name=Day -case=kebab -gql=full -json -bson -xml -ent
+//go:generate go run --mod=mod github.com/klippa-app/go-enum -name=Day -case=kebab -gql=full -json -bson -xml -ent -text
 package day
 
 type Day int

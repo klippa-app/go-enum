@@ -64,12 +64,12 @@ func (day_enum Day) String() string {
 }
 
 func DayFromString(val string) (*Day, error) {
-	valid := validDays()	
+	valid := validDays()
 	for i := range valid {
 		if valid[i].String() == val {
 			return &valid[i], nil
 		}
-	}	
+	}
 
 	return nil, fmt.Errorf("%s is not a valid Day", val)
 }
