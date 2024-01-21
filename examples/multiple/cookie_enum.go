@@ -53,12 +53,12 @@ func (cookie_enum Cookie) String() string {
 }
 
 func CookieFromString(val string) (*Cookie, error) {
-	valid := validCookies()	
+	valid := validCookies()
 	for i := range valid {
 		if valid[i].String() == val {
 			return &valid[i], nil
 		}
-	}	
+	}
 
 	return nil, fmt.Errorf("%s is not a valid Cookie", val)
 }

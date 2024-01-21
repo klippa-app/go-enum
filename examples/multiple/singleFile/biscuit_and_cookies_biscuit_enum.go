@@ -57,12 +57,12 @@ func (biscuit_enum Biscuit) String() string {
 }
 
 func BiscuitFromString(val string) (*Biscuit, error) {
-	valid := validBiscuits()	
+	valid := validBiscuits()
 	for i := range valid {
 		if valid[i].String() == val {
 			return &valid[i], nil
 		}
-	}	
+	}
 
 	return nil, fmt.Errorf("%s is not a valid Biscuit", val)
 }

@@ -59,12 +59,12 @@ func ({{ $lt }} {{ $t }}) String() string {
 }
 
 func {{ $FromString }}(val string) (*{{ $t }}, error) {
-	valid := {{ $validFn }}	
+	valid := {{ $validFn }}
 	for i := range valid {
 		if valid[i].String() == val {
 			return &valid[i], nil
 		}
-	}	
+	}
 
 	return nil, fmt.Errorf("%s is not a valid {{ $t }}", val)
 }
