@@ -2,20 +2,11 @@ package util
 
 func Only[T any, K any](values []K) (filtered []T) {
 	for i := range values {
-		switch t := any(values[i]).(type) {
-		case T:
+		if t, ok := any(values[i]).(T); ok {
 			filtered = append(filtered, t)
 		}
 	}
 	return filtered
-}
-
-func DereferenceOrNew[T any](v *T) T {
-	if v == nil {
-		v = new(T)
-	}
-
-	return *v
 }
 
 func Contains[T comparable](arr []T, s T) bool {

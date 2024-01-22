@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"flag"
 	"fmt"
 	"go/token"
 	"log"
@@ -16,6 +15,7 @@ import (
 	"golang.org/x/tools/go/packages"
 
 	"github.com/klippa-app/go-enum/coerce"
+	"github.com/klippa-app/go-enum/internal/config"
 	"github.com/klippa-app/go-enum/internal/util"
 	"github.com/klippa-app/go-enum/internal/values"
 )
@@ -24,57 +24,12 @@ var (
 	//go:embed templates/*
 	templates embed.FS
 )
-var (
-	packagePath string
-	fileName    string
-)
-
-var (
-	verbose      *bool
-	stringerCase *string
-	enumName     *string
-	prefix       *string
-
-	generateGql  *string
-	generateBson *bool
-	generateJson *bool
-	generateXml  *bool
-	generateSql  *bool
-	generateText *bool
-	generateEnt  *bool
-)
-
-func init() {
-	fileName = strings.TrimSuffix(os.Getenv("GOFILE"), ".go")
-	enumName = flag.String(
-		"name",
-		coerce.PascalCase(fileName),
-		"the name of the enum (defaults to the name of the file)",
-	)
-	prefix = flag.String("prefix", *enumName, "the prefix of the enum to strip (defaults to the name of the enum)")
-
-	verbose = flag.Bool("v", false, "enable verbose logging")
-	stringerCase = flag.String("case", "snake", "camel, pascal, snake, upper_snake, kebab, upper_kebab")
-	generateGql = flag.String("gql", "none", "'go': only generate marshaller, 'gql': only generate gql enum, 'full' generate both the marshaller and enum")
-	generateBson = flag.Bool("bson", false, "generate functions for Bson")
-	generateJson = flag.Bool("json", false, "generate functions for Json")
-	generateXml = flag.Bool("xml", false, "generate functions for Xml")
-	generateSql = flag.Bool("sql", false, "generate functions for sql")
-	generateEnt = flag.Bool("ent", false, "generate functions for ent")
-	generateText = flag.Bool("text", false, "generate functions for text")
-}
-
-func Usage() {
-	fmt.Fprintf(os.Stderr, "Usage of klippa/go-enum:\n")
-	fmt.Fprintf(os.Stderr, "TODO\n")
-}
 
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("go-enum: ")
 
-	flag.Usage = Usage
-	flag.Parse()
+	cfg := config.Instance()
 
 	dir, err := filepath.Abs(".")
 	if err != nil {
@@ -85,7 +40,7 @@ func main() {
 	pkgs, err := packages.Load(&packages.Config{
 		Fset: fset,
 		Mode: packages.NeedSyntax | packages.NeedName | packages.NeedModule | packages.NeedTypes | packages.NeedTypesInfo,
-	}, fmt.Sprintf("file=%s.go", fileName))
+	}, fmt.Sprintf("file=%s.go", cfg.FileName))
 	if err != nil {
 		panic(err)
 	}
@@ -95,7 +50,7 @@ func main() {
 
 	typeInfo := pkgs[0].TypesInfo
 
-	enumValues, underlyingType, enumDefault := values.ExtractEnumValues(typeInfo, fmt.Sprint(packagePath, ".", *enumName))
+	enumValues, underlyingType, enumDefault := values.ExtractEnumValues(typeInfo, fmt.Sprint(packagePath, ".", cfg.EnumName))
 	if len(enumValues) == 0 {
 		panic("no enum values found")
 	}
@@ -114,39 +69,43 @@ func main() {
 	data := TemplateData{
 		Pkg:              packageName,
 		PkgPath:          packagePath,
-		EnumName:         *enumName,
+		EnumName:         cfg.EnumName,
 		BaseType:         underlyingType,
 		EnumValues:       enumValues,
 		EnumDefaultValue: enumDefault,
 	}
 
-	ExecuteTemplate(templates, "enum.tmpl", fullPath(dir, fileName, *enumName, ".go"), data)
-	if util.DereferenceOrNew(generateBson) {
-		ExecuteTemplate(templates, "bson.tmpl", fullPath(dir, fileName, *enumName, "marshal_bson.go"), data)
+	execTemplate := func(name string, extension string) {
+		ExecuteTemplate(templates, name, fullPath(dir, cfg.FileName, cfg.EnumName, extension), data)
 	}
-	if util.DereferenceOrNew(generateJson) {
-		ExecuteTemplate(templates, "json.tmpl", fullPath(dir, fileName, *enumName, "marshal_json.go"), data)
+
+	execTemplate("enum.tmpl", ".go")
+	if cfg.Generate.Bson {
+		execTemplate("bson.tmpl", "marshal_bson.go")
 	}
-	if util.DereferenceOrNew(generateXml) {
-		ExecuteTemplate(templates, "xml.tmpl", fullPath(dir, fileName, *enumName, "marshal_xml.go"), data)
+	if cfg.Generate.Json {
+		execTemplate("json.tmpl", "marshal_json.go")
 	}
-	if util.DereferenceOrNew(generateSql) || util.DereferenceOrNew(generateEnt) {
-		ExecuteTemplate(templates, "sql.tmpl", fullPath(dir, fileName, *enumName, "marshal_sql.go"), data)
+	if cfg.Generate.Xml {
+		execTemplate("xml.tmpl", "marshal_xml.go")
 	}
-	if util.DereferenceOrNew(generateSql) || util.DereferenceOrNew(generateEnt) {
-		ExecuteTemplate(templates, "text.tmpl", fullPath(dir, fileName, *enumName, "marshal_text.go"), data)
+	if cfg.Generate.Sql || cfg.Generate.Ent {
+		execTemplate("sql.tmpl", "marshal_sql.go")
 	}
-	if util.DereferenceOrNew(generateEnt) {
-		ExecuteTemplate(templates, "ent.tmpl", fullPath(dir, fileName, *enumName, "marshal_ent.go"), data)
+	if cfg.Generate.Text {
+		execTemplate("text.tmpl", "marshal_text.go")
 	}
-	switch util.DereferenceOrNew(generateGql) {
+	if cfg.Generate.Ent {
+		execTemplate("ent.tmpl", "marshal_ent.go")
+	}
+	switch cfg.Generate.Gql {
 	case "go":
-		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, fileName, *enumName, "marshal_gql.go"), data)
+		execTemplate("gql.go.tmpl", "marshal_gql.go")
 	case "gql":
-		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, fileName, *enumName, ".graphql"), data)
+		execTemplate("gql.graphql.tmpl", ".graphql")
 	case "full":
-		ExecuteTemplate(templates, "gql.go.tmpl", fullPath(dir, fileName, *enumName, "marshal_gql.go"), data)
-		ExecuteTemplate(templates, "gql.graphql.tmpl", fullPath(dir, fileName, *enumName, ".graphql"), data)
+		execTemplate("gql.go.tmpl", "marshal_gql.go")
+		execTemplate("gql.graphql.tmpl", ".graphql")
 	}
 }
 
@@ -175,13 +134,11 @@ func ExecuteTemplate(tmpl *template.Template, name string, path string, data Tem
 }
 
 func stringer(s string) string {
-	if stringerCase == nil {
-		panic("no stringerCase set. (how did you do that?)")
-	}
+	cfg := config.Instance()
 
-	s = strings.TrimPrefix(coerce.SnakeCase(s), fmt.Sprint(coerce.SnakeCase(*prefix), "_"))
+	s = strings.TrimPrefix(coerce.SnakeCase(s), fmt.Sprint(coerce.SnakeCase(cfg.Prefix), "_"))
 
-	switch *stringerCase {
+	switch cfg.StringerCase {
 	case "camel":
 		return coerce.CamelCase(s)
 	case "pascal":
@@ -196,15 +153,13 @@ func stringer(s string) string {
 		return coerce.UpperKebabCase(s)
 	}
 
-	panic(fmt.Sprintf("unknown stringerCase: %s", *stringerCase))
+	panic(fmt.Sprintf("unknown stringerCase: %s", cfg.StringerCase))
 }
 
 func stringerFn() string {
-	if stringerCase == nil {
-		panic("no stringerCase set. (how did you do that?)")
-	}
+	cfg := config.Instance()
 
-	switch *stringerCase {
+	switch cfg.StringerCase {
 	case "camel":
 		return "coerce.CamelCase"
 	case "pascal":
@@ -219,7 +174,7 @@ func stringerFn() string {
 		return "coerce.UpperKebabCase"
 	}
 
-	panic(fmt.Sprintf("unknown stringerCase: %s", *stringerCase))
+	panic(fmt.Sprintf("unknown stringerCase: %s", cfg.StringerCase))
 }
 
 func receiver(s string) string {
