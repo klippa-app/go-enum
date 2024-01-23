@@ -8,6 +8,7 @@ import (
 	"github.com/klippa-app/go-enum/internal/util"
 )
 
+// EnumValue is a value of an enum as described by the AST, with the parsed Options from the inline comments.
 type EnumValue struct {
 	Name    string
 	Type    string
@@ -15,6 +16,7 @@ type EnumValue struct {
 	Value   string
 }
 
+// ExtractEnumValues uses the AST `typeInfo` to extract all the computed enum values (enums), underlyingType, and enumDefault.
 func ExtractEnumValues(typeInfo *types.Info, enumType string) (enums []EnumValue, underlyingType string, enumDefault string) {
 	for scope := range typeInfo.Scopes {
 		file, ok := scope.(*ast.File)

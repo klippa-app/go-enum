@@ -34,17 +34,20 @@ func init() {
 	config = loadConfig()
 }
 
+// Instance returns the singleton instance of the loaded config.
 func Instance() *Config {
 	return config
 }
 
+// loadConfig initializes a default config and merges in the configuration from the CLI flags.
+// TODO: also merge in a project configuration file.
 func loadConfig() *Config {
 	config := &Config{
 		Verbose:      false,
 		StringerCase: "snake",
+		FileName:     strings.TrimSuffix(os.Getenv("GOFILE"), ".go"),
 	}
 
-	config.FileName = strings.TrimSuffix(os.Getenv("GOFILE"), ".go")
 	config.EnumName = coerce.PascalCase(config.FileName)
 	config.Prefix = config.EnumName
 
@@ -53,6 +56,7 @@ func loadConfig() *Config {
 	return config
 }
 
+// overrideWithFlags overrides the config with the settings provided by CLI flags.
 func overrideWithFlags(config *Config) {
 	bindBool("v", &config.Verbose, "enable verbose logging")
 	bindString("case", &config.StringerCase, "camel, pascal, snake, upper_snake, kebab, upper_kebab")
@@ -77,10 +81,12 @@ func overrideWithFlags(config *Config) {
 	flag.Parse()
 }
 
+// bindString is a helper for binding the flag name, to the dest string, and using the initial value of dest as the default value.
 func bindString(name string, dest *string, usage string) {
 	flag.CommandLine.StringVar(dest, name, *dest, usage)
 }
 
+// bindString is a helper for binding the flag name, to the dest bool, and using the initial value of dest as the default value.
 func bindBool(name string, dest *bool, usage string) {
 	flag.CommandLine.BoolVar(dest, name, *dest, usage)
 }

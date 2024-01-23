@@ -1,28 +1,18 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"go/token"
 	"log"
-	"os"
 	"path"
 	"path/filepath"
 	"strings"
-	"text/template"
 
-	"github.com/gertd/go-pluralize"
 	"golang.org/x/tools/go/packages"
 
 	"github.com/klippa-app/go-enum/coerce"
 	"github.com/klippa-app/go-enum/internal/config"
-	"github.com/klippa-app/go-enum/internal/util"
 	"github.com/klippa-app/go-enum/internal/values"
-)
-
-var (
-	//go:embed templates/*
-	templates embed.FS
 )
 
 func main() {
@@ -31,11 +21,13 @@ func main() {
 
 	cfg := config.Instance()
 
+	// determine current directory
 	dir, err := filepath.Abs(".")
 	if err != nil {
 		panic(err)
 	}
 
+	// parse enum file into AST
 	fset := token.NewFileSet()
 	pkgs, err := packages.Load(&packages.Config{
 		Fset: fset,
@@ -45,11 +37,12 @@ func main() {
 		panic(err)
 	}
 
+	// extract package and type Info
 	packageName := pkgs[0].Name
 	packagePath := pkgs[0].PkgPath
-
 	typeInfo := pkgs[0].TypesInfo
 
+	// Extract the enum values, underlying types, and default from AST
 	enumValues, underlyingType, enumDefault := values.ExtractEnumValues(typeInfo, fmt.Sprint(packagePath, ".", cfg.EnumName))
 	if len(enumValues) == 0 {
 		panic("no enum values found")
@@ -59,13 +52,7 @@ func main() {
 		panic("could not determine underlying type for enum")
 	}
 
-	templates, err := template.New("").
-		Funcs(TemplateFunctions). // Custom functions
-		ParseFS(templates, "templates/*.tmpl")
-	if err != nil {
-		panic(err)
-	}
-
+	// Package context for templates.
 	data := TemplateData{
 		Pkg:              packageName,
 		PkgPath:          packagePath,
@@ -75,10 +62,12 @@ func main() {
 		EnumDefaultValue: enumDefault,
 	}
 
+	// alias for brevity
 	execTemplate := func(name string, extension string) {
-		ExecuteTemplate(templates, name, fullPath(dir, cfg.FileName, cfg.EnumName, extension), data)
+		ExecuteTemplate(name, data, fullPath(dir, cfg.FileName, cfg.EnumName, extension))
 	}
 
+	// execute all enabled templates.
 	execTemplate("enum.tmpl", ".go")
 	if cfg.Generate.Bson {
 		execTemplate("bson.tmpl", "marshal_bson.go")
@@ -109,99 +98,20 @@ func main() {
 	}
 }
 
+// fullPath joins the `dir`, `fullPath`, `enumName`, and `suffix` to produce an absolute path for a (new) generated go-enum file.
 func fullPath(dir string, fileName string, enumName string, suffix string) string {
-	filePathBaseParts := []string{coerce.CamelCase(fileName)}
-	if coerce.CamelCase(fileName) != coerce.CamelCase(enumName) {
-		filePathBaseParts = append(filePathBaseParts, coerce.CamelCase(enumName))
+	snakeEnum := coerce.SnakeCase(enumName)
+
+	newFileNameParts := []string{fileName}
+
+	// If the fileName does not match the enum name, we append the enum name to avoid conflicts.
+	if fileName != snakeEnum {
+		newFileNameParts = append(newFileNameParts, snakeEnum)
 	}
 
-	suf := fmt.Sprint(strings.Join(filePathBaseParts, "_"), "Enum", coerce.PascalCase(suffix))
+	// Join all the name parts with '_' (might produce `path_.go`)
+	newFileName := strings.Join(append(newFileNameParts, "enum", suffix), "_")
+	newFileName = strings.Replace(newFileName, "_.", ".", 1)
 
-	return path.Join(dir, coerce.SnakeCase(suf))
-}
-
-func ExecuteTemplate(tmpl *template.Template, name string, path string, data TemplateData) {
-	writer, err := os.Create(path)
-	if err != nil {
-		panic(err)
-	}
-	defer writer.Close()
-
-	err = tmpl.ExecuteTemplate(writer, name, data)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func stringer(s string) string {
-	cfg := config.Instance()
-
-	s = strings.TrimPrefix(coerce.SnakeCase(s), fmt.Sprint(coerce.SnakeCase(cfg.Prefix), "_"))
-
-	switch cfg.StringerCase {
-	case "camel":
-		return coerce.CamelCase(s)
-	case "pascal":
-		return coerce.PascalCase(s)
-	case "snake":
-		return coerce.SnakeCase(s)
-	case "upper_snake":
-		return coerce.UpperSnakeCase(s)
-	case "kebab":
-		return coerce.KebabCase(s)
-	case "upper_kebab":
-		return coerce.UpperKebabCase(s)
-	}
-
-	panic(fmt.Sprintf("unknown stringerCase: %s", cfg.StringerCase))
-}
-
-func stringerFn() string {
-	cfg := config.Instance()
-
-	switch cfg.StringerCase {
-	case "camel":
-		return "coerce.CamelCase"
-	case "pascal":
-		return "coerce.PascalCase"
-	case "snake":
-		return "coerce.SnakeCase"
-	case "upper_snake":
-		return "coerce.UpperSnakeCase"
-	case "kebab":
-		return "coerce.KebabCase"
-	case "upper_kebab":
-		return "coerce.UpperKebabCase"
-	}
-
-	panic(fmt.Sprintf("unknown stringerCase: %s", cfg.StringerCase))
-}
-
-func receiver(s string) string {
-	return fmt.Sprintf("%s_enum", strings.ToLower(s))
-}
-
-var TemplateFunctions = template.FuncMap{
-	"containsString": util.Contains[string],
-	"lower":          strings.ToLower,
-	"camel":          coerce.CamelCase,
-	"pascal":         coerce.PascalCase,
-	"upperSnake":     coerce.UpperSnakeCase,
-	"plural":         pluralize.NewClient().Plural,
-	"stringer":       stringer,
-	"stringerFn":     stringerFn,
-	"receiver":       receiver,
-}
-
-type TemplateData struct {
-	Pkg              string
-	PkgPath          string
-	EnumName         string
-	BaseType         string
-	EnumDefaultValue string
-	Gqlgen           bool
-	Bson             bool
-	Json             bool
-	Xml              bool
-	EnumValues       []values.EnumValue
+	return path.Join(dir, newFileName)
 }

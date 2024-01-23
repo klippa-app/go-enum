@@ -3,30 +3,21 @@ package options
 import (
 	"fmt"
 	"go/ast"
+	"regexp"
 	"strings"
 )
 
+var optionsRegex = regexp.MustCompile(`//enum:([\w,]+)`)
+
+// Parse extracts go-enum options from an inline comment group.
 func Parse(name string, cgroup *ast.CommentGroup, enumDefault *string) []string {
 	if cgroup == nil {
 		return []string{}
 	}
 
-	// "// enum:default,invalid some other text   "
-	comment := strings.TrimPrefix(cgroup.List[0].Text, "//")
-	// " enum:default,invalid some other text   "
-	comment = strings.TrimSpace(comment)
-	// "enum:default,invalid some other text"
-
-	cmd := strings.Split(comment, " ")[0]
-	// "enum:default,invalid"
-	if !strings.HasPrefix(cmd, "enum:") {
-		return []string{}
-	}
-
-	cmd = strings.TrimPrefix(cmd, "enum:")
-	// "default,invalid"
-	options := strings.Split(strings.ReplaceAll(cmd, " ", ""), ",")
-	// [default, invalid]
+	// extract the comma seperated list after the enum directive
+	directive := optionsRegex.FindStringSubmatch(cgroup.List[0].Text)[1]
+	options := strings.Split(directive, ",")
 
 	for i := range options {
 		option := Option(options[i])
