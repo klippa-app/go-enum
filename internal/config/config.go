@@ -49,7 +49,6 @@ func loadConfig() *Config {
 	}
 
 	config.EnumName = coerce.PascalCase(config.FileName)
-	config.Prefix = config.EnumName
 
 	overrideWithFlags(config)
 
@@ -61,16 +60,7 @@ func overrideWithFlags(config *Config) {
 	bindBool("v", &config.Verbose, "enable verbose logging")
 	bindString("case", &config.StringerCase, "camel, pascal, snake, upper_snake, kebab, upper_kebab")
 	bindString("prefix", &config.Prefix, "the prefix of the enum to strip (defaults to the name of the enum)")
-	flag.CommandLine.Func("name", "the name of the enum (defaults to the name of the file)", func(name string) error {
-		if config.EnumName == config.Prefix {
-			// Prefix should default to whatever EnumName is, but only if it hasnt been changed.
-			config.Prefix = name
-		}
-
-		config.EnumName = name
-		return nil
-	})
-
+	bindString("name", &config.EnumName, "the name of the enum (defaults to the name of the file)")
 	bindString("gql", &config.Generate.Gql, "'go': only generate marshaller, 'gql' only generate gql enum, 'full' generate both the marshaller and enum")
 	bindBool("bson", &config.Generate.Bson, "generate functions for Bson")
 	bindBool("json", &config.Generate.Json, "generate functions for Json")

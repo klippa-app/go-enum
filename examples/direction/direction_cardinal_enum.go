@@ -7,6 +7,7 @@ import (
 
 func AllCardinals() []Cardinal {
 	return []Cardinal{
+		CardUnkown,
 		CardNorth,
 		CardSouth,
 		CardWest,
@@ -26,15 +27,17 @@ func validCardinals() []Cardinal {
 func ToCardinal(value string) Cardinal {
 	cardinal_enum := Cardinal(value)
 	switch cardinal_enum {
-	case CardNorth, CardSouth, CardWest, CardEast:
+	case CardUnkown, CardNorth, CardSouth, CardWest, CardEast:
 		return cardinal_enum
 	default:
-		panic(fmt.Sprintf("no default for enum %v", cardinal_enum))
+		return CardUnkown
 	}
 }
 
 func (cardinal_enum Cardinal) String() string {
 	switch cardinal_enum {
+	case CardUnkown:
+		return "card_unkown"
 	case CardNorth:
 		return "card_north"
 	case CardSouth:
@@ -44,7 +47,7 @@ func (cardinal_enum Cardinal) String() string {
 	case CardEast:
 		return "card_east"
 	default:
-		panic(fmt.Sprintf("no default for enum %T, invalid value: '%#v'", cardinal_enum, cardinal_enum))
+		return CardUnkown.String()
 	}
 }
 

@@ -1,6 +1,8 @@
 //go:generate go run --mod=mod github.com/klippa-app/go-enum -name=Direction -json
 package directions
 
+import "fmt"
+
 type Direction int
 
 const (
@@ -15,8 +17,16 @@ const (
 type Cardinal string
 
 const (
-	CardNorth Cardinal = "north"
-	CardSouth Cardinal = "south"
-	CardWest  Cardinal = "west"
-	CardEast  Cardinal = "east"
+	CardUnkown Cardinal = "unknown" //enum:default,invalid
+	CardNorth  Cardinal = "north"
+	CardSouth  Cardinal = "south"
+	CardWest   Cardinal = "west"
+	CardEast   Cardinal = "east"
 )
+
+func init() {
+	direction := North
+	cardinal := CardNorth
+
+	fmt.Println(direction, cardinal)
+}
