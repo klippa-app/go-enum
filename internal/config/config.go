@@ -18,13 +18,14 @@ type Config struct {
 	StringerCase string
 
 	Generate struct {
-		Gql  string
-		Bson bool
-		Json bool
-		Xml  bool
-		Sql  bool
-		Ent  bool
-		Text bool
+		Gql        string
+		Bson       bool
+		Json       bool
+		Xml        bool
+		Sql        bool
+		Ent        bool
+		Text       bool
+		NoStringer bool
 	}
 }
 
@@ -74,6 +75,7 @@ func overrideWithFlags(config *Config) {
 	bindBool("sql", &config.Generate.Sql, "generate functions for sql")
 	bindBool("ent", &config.Generate.Ent, "generate functions for ent")
 	bindBool("text", &config.Generate.Text, "generate functions for text")
+	bindBool("no-stringer", &config.Generate.NoStringer, "disable generation of the stringer function")
 	flag.Parse()
 }
 

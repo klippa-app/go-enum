@@ -73,6 +73,7 @@ func main() {
 		BaseType:         underlyingType,
 		EnumValues:       enumValues,
 		EnumDefaultValue: enumDefault,
+		Config:           cfg,
 	}
 
 	execTemplate := func(name string, extension string) {
@@ -204,4 +205,5 @@ type TemplateData struct {
 	Json             bool
 	Xml              bool
 	EnumValues       []values.EnumValue
+	Config           *config.Config
 }

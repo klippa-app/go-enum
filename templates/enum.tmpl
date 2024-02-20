@@ -42,7 +42,7 @@ func To{{ $t }}(value {{ $.BaseType }}) {{ $t }} {
 	{{- end }}
 	}
 }
-
+{{ if not $.Config.Generate.NoStringer }}
 func ({{ $lt }} {{ $t }}) String() string {
 	switch {{ $lt }} {
 	{{- range $index, $enum := $.EnumValues }}
@@ -57,7 +57,7 @@ func ({{ $lt }} {{ $t }}) String() string {
 	{{- end }}
 	}
 }
-
+{{ end }}
 func {{ $FromString }}(val string) (*{{ $t }}, error) {
 	valid := {{ $validFn }}
 	for i := range valid {
