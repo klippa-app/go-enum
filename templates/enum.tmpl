@@ -47,7 +47,11 @@ func ({{ $lt }} {{ $t }}) String() string {
 	switch {{ $lt }} {
 	{{- range $index, $enum := $.EnumValues }}
 	case {{ $enum.Name }}:
+	{{- if eq $.BaseType "string" }}
+		return {{ $enum.Value }} 
+	{{- else }}
 		return "{{ stringer $enum.Name }}"
+	{{- end }}
 	{{- end }}
 	default:
 	{{- if $default := $.EnumDefaultValue }}
