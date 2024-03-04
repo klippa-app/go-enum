@@ -100,8 +100,10 @@ folder.
   [encoding/json `Marshaler`](https://pkg.go.dev/encoding/json#Marshaler) and 
   [`Unmarshaler`](https://pkg.go.dev/encoding/json#Unmarshaler) interfaces.
 - `BSON`: with the `-bson` flag, implements the 
-  [mgo/bson Getter](https://pkg.go.dev/labix.org/v2/mgo/bson#Getter) and 
-  [Setter](https://pkg.go.dev/labix.org/v2/mgo/bson#Setter) interfaces.
+  [mgo/bson Getter](https://pkg.go.dev/labix.org/v2/mgo/bson#Getter), 
+  [Setter](https://pkg.go.dev/labix.org/v2/mgo/bson#Setter),
+  [ValueMarshaler](https://pkg.go.dev/go.mongodb.org/mongo-driver/bson#ValueMarshaler) and
+  [Unmarshaler](https://pkg.go.dev/go.mongodb.org/mongo-driver/bson#Unmarshaler) interfaces
 - `XML`:  with the `-xml` flag, implements the
   [encoding/xml `Marshaler`](https://pkg.go.dev/encoding/xml#Marshaler) and
   [`Unmarshaler`](https://pkg.go.dev/encoding/xml#Unmarshaler) interfaces.

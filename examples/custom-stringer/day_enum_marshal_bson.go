@@ -3,6 +3,9 @@ package day
 
 import (
 	"github.com/globalsign/mgo/bson"
+
+	mongo "go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
 )
 
 func (day_enum Day) GetBSON() (interface{}, error) {
@@ -29,4 +32,20 @@ func (day_enum *Day) SetBSON(raw bson.Raw) error {
 
 	*day_enum = *enum
 	return nil
+}
+
+func (day_enum *Day) UnmarshalBSON(data []byte) error {
+	return day_enum.SetBSON(bson.Raw{
+		Kind: bson.ElementString,
+		Data: data,
+	})
+}
+
+func (day_enum Day) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	err := day_enum.Validate()
+	if err != nil {
+		return bsontype.Undefined,nil, err
+	}
+
+	return mongo.MarshalValue(day_enum.String())
 }
