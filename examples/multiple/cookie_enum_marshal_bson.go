@@ -3,6 +3,9 @@ package multiple
 
 import (
 	"github.com/globalsign/mgo/bson"
+
+	mongo "go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
 )
 
 func (cookie_enum Cookie) GetBSON() (interface{}, error) {
@@ -29,4 +32,20 @@ func (cookie_enum *Cookie) SetBSON(raw bson.Raw) error {
 
 	*cookie_enum = *enum
 	return nil
+}
+
+func (cookie_enum *Cookie) UnmarshalBSON(data []byte) error {
+	return cookie_enum.SetBSON(bson.Raw{
+		Kind: bson.ElementString,
+		Data: data,
+	})
+}
+
+func (cookie_enum Cookie) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	err := cookie_enum.Validate()
+	if err != nil {
+		return bsontype.Undefined,nil, err
+	}
+
+	return mongo.MarshalValue(cookie_enum.String())
 }

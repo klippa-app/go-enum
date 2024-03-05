@@ -3,6 +3,9 @@ package multiple
 
 import (
 	"github.com/globalsign/mgo/bson"
+
+	mongo "go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
 )
 
 func (biscuit_enum Biscuit) GetBSON() (interface{}, error) {
@@ -29,4 +32,20 @@ func (biscuit_enum *Biscuit) SetBSON(raw bson.Raw) error {
 
 	*biscuit_enum = *enum
 	return nil
+}
+
+func (biscuit_enum *Biscuit) UnmarshalBSON(data []byte) error {
+	return biscuit_enum.SetBSON(bson.Raw{
+		Kind: bson.ElementString,
+		Data: data,
+	})
+}
+
+func (biscuit_enum Biscuit) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	err := biscuit_enum.Validate()
+	if err != nil {
+		return bsontype.Undefined,nil, err
+	}
+
+	return mongo.MarshalValue(biscuit_enum.String())
 }

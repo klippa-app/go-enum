@@ -7,6 +7,9 @@ package {{ $.Pkg }}
 
 import (
 	"github.com/globalsign/mgo/bson"
+
+	mongo "go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
 )
 
 func ({{ $lt }} {{ $t }}) GetBSON() (interface{}, error) {
@@ -33,4 +36,20 @@ func ({{ $lt }} *{{ $t }}) SetBSON(raw bson.Raw) error {
 
 	*{{ $lt }} = *enum
 	return nil
+}
+
+func ({{ $lt }} *{{ $t }}) UnmarshalBSON(data []byte) error {
+	return {{ $lt }}.SetBSON(bson.Raw{
+		Kind: bson.ElementString,
+		Data: data,
+	})
+}
+
+func ({{ $lt }} {{ $t }}) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	err := {{ $lt }}.Validate()
+	if err != nil {
+		return bsontype.Undefined,nil, err
+	}
+
+	return mongo.MarshalValue({{ $lt }}.String())
 }
