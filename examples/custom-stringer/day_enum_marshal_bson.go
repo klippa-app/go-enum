@@ -19,6 +19,10 @@ func (day_enum Day) GetBSON() (interface{}, error) {
 
 func (day_enum *Day) SetBSON(raw bson.Raw) error {
 	var str string
+
+	if len(raw.Data) == 0 {
+		return bson.ErrSetZero
+	}
 	
 	err := raw.Unmarshal(&str)
 	if err != nil {

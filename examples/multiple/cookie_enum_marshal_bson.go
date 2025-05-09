@@ -19,6 +19,10 @@ func (cookie_enum Cookie) GetBSON() (interface{}, error) {
 
 func (cookie_enum *Cookie) SetBSON(raw bson.Raw) error {
 	var str string
+
+	if len(raw.Data) == 0 {
+		return bson.ErrSetZero
+	}
 	
 	err := raw.Unmarshal(&str)
 	if err != nil {
