@@ -40,29 +40,29 @@ func ToBiscuit(value int) Biscuit {
 func (biscuit_enum Biscuit) String() string {
 	switch biscuit_enum {
 	case BiscuitDigestive:
-		return "biscuit_digestive"
+		return "digestive"
 	case BiscuitHobnob:
-		return "biscuit_hobnob"
+		return "hobnob"
 	case BiscuitNice:
-		return "biscuit_nice"
+		return "nice"
 	case BiscuitJammieDodger:
-		return "biscuit_jammie_dodger"
+		return "jammie_dodger"
 	case BiscuitShortbread:
-		return "biscuit_shortbread"
+		return "shortbread"
 	case BiscuitGingerNut:
-		return "biscuit_ginger_nut"
+		return "ginger_nut"
 	default:
 		return BiscuitDigestive.String()
 	}
 }
 
 func BiscuitFromString(val string) (*Biscuit, error) {
-	valid := validBiscuits()	
+	valid := validBiscuits()
 	for i := range valid {
 		if valid[i].String() == val {
 			return &valid[i], nil
 		}
-	}	
+	}
 
 	return nil, fmt.Errorf("%s is not a valid Biscuit", val)
 }

@@ -9,6 +9,7 @@ require (
 
 require (
 	github.com/gertd/go-pluralize v0.2.1
+	go.mongodb.org/mongo-driver v1.11.3
 	golang.org/x/tools v0.2.0
 )
 

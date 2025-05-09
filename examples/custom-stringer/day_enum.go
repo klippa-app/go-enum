@@ -30,36 +30,13 @@ func validDays() []Day {
 	}
 }
 
-func ToDay(value int) Day {
+func ToDay(value string) Day {
 	day_enum := Day(value)
 	switch day_enum {
 	case Unknown, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday:
 		return day_enum
 	default:
-		return Unknown
-	}
-}
-
-func (day_enum Day) String() string {
-	switch day_enum {
-	case Unknown:
-		return "unknown"
-	case Monday:
-		return "monday"
-	case Tuesday:
-		return "tuesday"
-	case Wednesday:
-		return "wednesday"
-	case Thursday:
-		return "thursday"
-	case Friday:
-		return "friday"
-	case Saturday:
-		return "saturday"
-	case Sunday:
-		return "sunday"
-	default:
-		return Unknown.String()
+		panic(fmt.Sprintf("no default for enum %v", day_enum))
 	}
 }
 
