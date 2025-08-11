@@ -48,7 +48,7 @@ func (day_enum *Day) UnmarshalBSON(data []byte) error {
 func (day_enum Day) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	err := day_enum.Validate()
 	if err != nil {
-		return bsontype.Undefined,nil, err
+		return bsontype.Undefined, nil, err
 	}
 
 	return mongo.MarshalValue(day_enum.String())

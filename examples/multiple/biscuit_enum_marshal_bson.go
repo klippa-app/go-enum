@@ -48,7 +48,7 @@ func (biscuit_enum *Biscuit) UnmarshalBSON(data []byte) error {
 func (biscuit_enum Biscuit) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	err := biscuit_enum.Validate()
 	if err != nil {
-		return bsontype.Undefined,nil, err
+		return bsontype.Undefined, nil, err
 	}
 
 	return mongo.MarshalValue(biscuit_enum.String())
