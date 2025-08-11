@@ -73,7 +73,6 @@ func main() {
 		BaseType:         underlyingType,
 		EnumValues:       enumValues,
 		EnumDefaultValue: enumDefault,
-		BsonVersion:      "",
 		Config:           cfg,
 	}
 
