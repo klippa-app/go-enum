@@ -9,7 +9,6 @@ import (
 	"github.com/globalsign/mgo/bson"
 
 	mongo "go.mongodb.org/mongo-driver/v2/bson"
-	mongobson "go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func ({{ $lt }} {{ $t }}) GetBSON() (interface{}, error) {
@@ -49,10 +48,10 @@ func ({{ $lt }} *{{ $t }}) UnmarshalBSON(data []byte) error {
 	})
 }
 
-func ({{ $lt }} {{ $t }}) MarshalBSONValue() (mongobson.Type, []byte, error) {
+func ({{ $lt }} {{ $t }}) MarshalBSONValue() (mongo.Type, []byte, error) {
 	err := {{ $lt }}.Validate()
 	if err != nil {
-		return mongobson.TypeUndefined, nil, err
+		return mongo.TypeUndefined, nil, err
 	}
 
 	return mongo.MarshalValue({{ $lt }}.String())
