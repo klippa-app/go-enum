@@ -48,11 +48,12 @@ func ({{ $lt }} *{{ $t }}) UnmarshalBSON(data []byte) error {
 	})
 }
 
-func ({{ $lt }} {{ $t }}) MarshalBSONValue() (mongo.Type, []byte, error) {
+func ({{ $lt }} {{ $t }}) MarshalBSONValue() (byte, []byte, error) {
 	err := {{ $lt }}.Validate()
 	if err != nil {
-		return mongo.TypeUndefined, nil, err
+		return byte(mongo.TypeUndefined), nil, err
 	}
 
-	return mongo.MarshalValue({{ $lt }}.String())
+	marshalledType, value, err := mongo.MarshalValue({{ $lt }}.String())
+	return byte(marshalledType), value, err
 }

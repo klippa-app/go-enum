@@ -44,11 +44,12 @@ func (day_enum *Day) UnmarshalBSON(data []byte) error {
 	})
 }
 
-func (day_enum Day) MarshalBSONValue() (mongo.Type, []byte, error) {
+func (day_enum Day) MarshalBSONValue() (byte, []byte, error) {
 	err := day_enum.Validate()
 	if err != nil {
-		return mongo.TypeUndefined, nil, err
+		return byte(mongo.TypeUndefined), nil, err
 	}
 
-	return mongo.MarshalValue(day_enum.String())
+	marshalledType, value, err := mongo.MarshalValue(day_enum.String())
+	return byte(marshalledType), value, err
 }
