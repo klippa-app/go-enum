@@ -82,7 +82,11 @@ func main() {
 
 	execTemplate("enum.tmpl", ".go")
 	if cfg.Generate.Bson {
-		execTemplate("bson.tmpl", "marshal_bson.go")
+		if cfg.Generate.BsonVersion == "v2" {
+			execTemplate("bson_v2.tmpl", "marshal_bson.go")
+		} else {
+			execTemplate("bson.tmpl", "marshal_bson.go")
+		}
 	}
 	if cfg.Generate.Json {
 		execTemplate("json.tmpl", "marshal_json.go")
@@ -202,6 +206,7 @@ type TemplateData struct {
 	EnumDefaultValue string
 	Gqlgen           bool
 	Bson             bool
+	BsonVersion      string
 	Json             bool
 	Xml              bool
 	EnumValues       []values.EnumValue

@@ -48,7 +48,7 @@ func (cookie_enum *Cookie) UnmarshalBSON(data []byte) error {
 func (cookie_enum Cookie) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	err := cookie_enum.Validate()
 	if err != nil {
-		return bsontype.Undefined,nil, err
+		return bsontype.Undefined, nil, err
 	}
 
 	return mongo.MarshalValue(cookie_enum.String())

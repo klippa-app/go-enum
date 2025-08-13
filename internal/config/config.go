@@ -18,14 +18,15 @@ type Config struct {
 	StringerCase string
 
 	Generate struct {
-		Gql        string
-		Bson       bool
-		Json       bool
-		Xml        bool
-		Sql        bool
-		Ent        bool
-		Text       bool
-		NoStringer bool
+		Gql         string
+		Bson        bool
+		BsonVersion string
+		Json        bool
+		Xml         bool
+		Sql         bool
+		Ent         bool
+		Text        bool
+		NoStringer  bool
 	}
 }
 
@@ -70,6 +71,7 @@ func overrideWithFlags(config *Config) {
 
 	bindString("gql", &config.Generate.Gql, "'go': only generate marshaller, 'gql' only generate gql enum, 'full' generate both the marshaller and enum")
 	bindBool("bson", &config.Generate.Bson, "generate functions for Bson")
+	bindString("bson-version", &config.Generate.BsonVersion, "the major version of the go.mongodb.org/mongo-driver to use, for example -bson-version=v2")
 	bindBool("json", &config.Generate.Json, "generate functions for Json")
 	bindBool("xml", &config.Generate.Xml, "generate functions for Xml")
 	bindBool("sql", &config.Generate.Sql, "generate functions for sql")
