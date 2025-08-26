@@ -59,6 +59,15 @@ func main() {
 		panic("could not determine underlying type for enum")
 	}
 
+	visited := make(map[string]bool, 0)
+	for i := range enumValues{
+		if visited[enumValues[i].Value] == true{
+			panic("no duplicate values allowed in enum")
+		} else {
+			visited[enumValues[i].Value] = true
+		}
+	}
+
 	templates, err := template.New("").
 		Funcs(TemplateFunctions). // Custom functions
 		ParseFS(templates, "templates/*.tmpl")
